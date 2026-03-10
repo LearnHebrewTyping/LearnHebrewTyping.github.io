@@ -137,10 +137,25 @@
         .lesson-info { text-align: center; padding: 30px; background: rgba(99, 102, 241, 0.1); border-radius: 20px; margin-bottom: 30px; }
 
         .target-text { font-size: 3rem; font-weight: 700; text-align: center; margin: 40px 0; letter-spacing: 15px; font-family: 'Assistant', monospace; user-select: none; }
-        .char-display { display: inline-block; padding: 10px 15px; margin: 0 5px; background: rgba(99, 102, 241, 0.05); border-radius: 10px; transition: all 0.3s ease; }
+        .char-display { display: inline-block; padding: 10px 15px; margin: 0 5px; background: rgba(99, 102, 241, 0.05); border-radius: 10px; transition: all 0.3s ease; position: relative; }
         .char-display.current { background: rgba(99, 102, 241, 0.3); color: #60a5fa; border: 2px solid var(--primary); transform: scale(1.1); }
         .char-display.correct { background: rgba(16, 185, 129, 0.3); color: var(--success); border: 2px solid var(--success); }
         .char-display.incorrect { background: rgba(239, 68, 68, 0.3); color: var(--error); border: 2px solid var(--error); animation: shake 0.3s; }
+
+        /* Space character display - make it look like underline */
+        .char-display.space-char {
+            padding: 10px 30px;
+        }
+        .char-display.space-char::after {
+            content: '';
+            position: absolute;
+            bottom: 8px;
+            left: 10px;
+            right: 10px;
+            height: 3px;
+            background: currentColor;
+            border-radius: 2px;
+        }
 
         @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
 
@@ -148,9 +163,37 @@
         .user-input:focus { outline: none; box-shadow: 0 0 30px rgba(99, 102, 241, 0.5); }
 
         .stats-bar { display: flex; justify-content: space-around; gap: 20px; padding: 20px; background: rgba(99, 102, 241, 0.1); border-radius: 15px; margin-bottom: 30px; }
-        .stat-item { text-align: center; }
+        .stat-item { text-align: center; position: relative; }
         .stat-value { font-size: 2.5rem; font-weight: 700; color: var(--primary); }
-        .stat-label { color: var(--text-dim); font-size: 0.9rem; }
+        .stat-label { color: var(--text-dim); font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 5px; }
+
+        /* Tooltip styles */
+        .tooltip-container { position: relative; display: inline-block; }
+        .tooltip-btn {
+            width: 20px; height: 20px; border-radius: 50%; background: var(--primary);
+            color: white; border: none; cursor: pointer; font-size: 0.75rem; font-weight: 700;
+            display: inline-flex; align-items: center; justify-content: center; transition: all 0.2s ease;
+        }
+        .tooltip-btn:hover { transform: scale(1.1); background: var(--secondary); }
+        .tooltip-box {
+            position: absolute; bottom: 35px; left: 50%; transform: translateX(-50%);
+            background: var(--bg-light); color: var(--text-light); padding: 15px 20px;
+            border-radius: 10px; border: 2px solid var(--primary); box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            width: 280px; z-index: 1000; display: none; text-align: right; font-size: 0.9rem; line-height: 1.5;
+        }
+        .tooltip-box.show { display: block; }
+        .tooltip-box::after {
+            content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+            border: 8px solid transparent; border-top-color: var(--primary);
+        }
+
+        /* Key explanation label */
+        .key-explanation {
+            text-align: center; color: var(--text-dim); font-size: 1.2rem;
+            margin-bottom: 20px; padding: 12px 20px; background: rgba(99,102,241,0.15);
+            border-radius: 12px; border: 2px solid rgba(99,102,241,0.4);
+            font-weight: 500;
+        }
 
         .keyboard-hands-container { position: relative; background: rgba(0,0,0,0.2); padding: 60px; border-radius: 25px; margin: 40px auto; border: 2px solid rgba(99, 102, 241, 0.3); max-width: 1400px; }
         body.light-mode .keyboard-hands-container { background: rgba(99, 102, 241, 0.05); }
@@ -174,8 +217,8 @@
 
         .hands-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; z-index: 100; }
         .hand-container { position: absolute; transition: all 0.3s ease; }
-        .hand-container.left { left: 22%; bottom: 30px; }
-        .hand-container.right { right: 22%; bottom: 30px; }
+        .hand-container.left { left: 12%; bottom: 30px; }
+        .hand-container.right { right: 12%; bottom: 30px; }
         .hand-svg { width: 350px; height: 250px; opacity: 0.65; filter: drop-shadow(0 8px 20px rgba(0,0,0,0.4)); }
         .finger-segment { transition: all 0.3s ease; transform-origin: bottom center; }
         .finger-svg.pressing .tip { transform: translateY(-20px) rotate(-5deg); }
@@ -194,8 +237,8 @@
             .landing-hero h1 { font-size: 2.5rem; }
             .landing-hero .subtitle { font-size: 1.3rem; }
             .hand-svg { width: 180px; height: 150px; }
-            .hand-container.left { left: 8%; }
-            .hand-container.right { right: 8%; }
+            .hand-container.left { left: 5%; }
+            .hand-container.right { right: 5%; }
             .target-text { font-size: 2rem; letter-spacing: 10px; }
             .key { min-width: 55px; height: 55px; font-size: 1.5rem; }
             .key.space { min-width: 300px; }
@@ -272,9 +315,45 @@
                     <p id="lessonDesc" style="color: var(--text-dim);"></p>
                 </div>
                 <div class="stats-bar">
-                    <div class="stat-item"><div class="stat-value" id="wpmStat">0</div><div class="stat-label">מילים לדקה</div></div>
-                    <div class="stat-item"><div class="stat-value" id="accuracyStat">100%</div><div class="stat-label">דיוק</div></div>
-                    <div class="stat-item"><div class="stat-value" id="errorsStat">0</div><div class="stat-label">שגיאות</div></div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="wpmStat">0</div>
+                        <div class="stat-label">
+                            מילים לדקה
+                            <div class="tooltip-container">
+                                <button class="tooltip-btn" onclick="toggleTooltip(event, 'wpmTooltip')">?</button>
+                                <div class="tooltip-box" id="wpmTooltip">
+                                    <strong>מילים לדקה (WPM)</strong><br>
+                                    מודד כמה מילים אתה מצליח להקליד בדקה אחת. מילה שווה ל-5 תווים בממוצע. מהירות טובה: 40+ WPM.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="accuracyStat">100%</div>
+                        <div class="stat-label">
+                            דיוק
+                            <div class="tooltip-container">
+                                <button class="tooltip-btn" onclick="toggleTooltip(event, 'accuracyTooltip')">?</button>
+                                <div class="tooltip-box" id="accuracyTooltip">
+                                    <strong>דיוק</strong><br>
+                                    מציג את אחוז הדיוק שלך. מתחיל ב-100% ויורד עם כל טעות. שאף לדיוק של 95% ומעלה!
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="errorsStat">0</div>
+                        <div class="stat-label">
+                            שגיאות
+                            <div class="tooltip-container">
+                                <button class="tooltip-btn" onclick="toggleTooltip(event, 'errorsTooltip')">?</button>
+                                <div class="tooltip-box" id="errorsTooltip">
+                                    <strong>שגיאות</strong><br>
+                                    מספר הפעמים שהקלדת תו שגוי. ככל שפחות שגיאות, כך הדיוק שלך גבוה יותר.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="progress-indicator">
                     <div class="progress-text" id="progressText">התקדמות: 0/10</div>
@@ -282,6 +361,11 @@
                         <div class="progress-bar-fill" id="progressBarFill" style="width: 0%"></div>
                     </div>
                 </div>
+
+                <div class="key-explanation" id="keyExplanation" style="display: none;">
+                    ⬅️ התצוגה מראה לך אילו מקשים צריך ללחוץ
+                </div>
+
                 <div class="target-text" id="targetText"></div>
                 <input type="text" class="user-input" id="userInput"
                        placeholder="התחל להקליד..."
@@ -487,7 +571,6 @@
             ]
         ];
 
-        // FIXED: All Hebrew letters NOW properly taught including ף י ע ק ג
         const lessonLevels = [
             { id: 1, title: 'שיעור 1: שורת הבית - ש ד', desc: 'למד את האצבעות הראשונות', exercises: ['ש ש ש ד ד ד', 'שד דש שד דש', 'שש דד שש דד', 'שד שד דש דש', 'דש דש שד שד', 'ששש דדד שדש דשד', 'שדשד דשדש שדש', 'דשדש שדשד דשד'] },
             { id: 2, title: 'שיעור 2: שורת הבית - ל ך', desc: 'הוסף ל וך', exercises: ['ל ל ל ך ך ך', 'לך ךל לך ךל', 'של דל שך דך', 'לש לד ךש ךד', 'שלך דלך שךל דךל', 'לדש ךדש לשד ךשד', 'שדלך לךשד דשךל', 'ךלדש שדךל לשדך'] },
@@ -522,6 +605,7 @@
         let startTime = null;
         let errors = 0;
         let totalChars = 0;
+        let correctChars = 0;  // NEW: Track correct chars for accuracy
         let isLoginMode = true;
         let currentTargetText = '';
         let isDarkMode = true;
@@ -531,12 +615,31 @@
             createKeyboard();
             setupInput();
             updateNavButtons();
+            // Close tooltips when clicking outside
+            document.addEventListener('click', closeAllTooltips);
 
             if (loadCurrentSession()) {
                 goHome();
             } else {
                 showPage('landingPage');
             }
+        }
+
+        // Tooltip functions
+        function toggleTooltip(event, tooltipId) {
+            event.stopPropagation();
+            const tooltip = document.getElementById(tooltipId);
+            const allTooltips = document.querySelectorAll('.tooltip-box');
+            
+            allTooltips.forEach(t => {
+                if (t.id !== tooltipId) t.classList.remove('show');
+            });
+            
+            tooltip.classList.toggle('show');
+        }
+
+        function closeAllTooltips() {
+            document.querySelectorAll('.tooltip-box').forEach(t => t.classList.remove('show'));
         }
 
         function loadUserData(email) {
@@ -755,7 +858,17 @@
             document.getElementById('lessonDesc').textContent = lesson.desc;
             errors = 0;
             totalChars = 0;
+            correctChars = 0;  // Reset correct chars
             startTime = null;
+            
+            // Show explanation only for lesson 1
+            const explanation = document.getElementById('keyExplanation');
+            if (currentLessonIndex === 0) {
+                explanation.style.display = 'block';
+            } else {
+                explanation.style.display = 'none';
+            }
+            
             loadExercise();
         }
 
@@ -777,8 +890,10 @@
             container.innerHTML = '';
             [...text].forEach((char, index) => {
                 const span = document.createElement('span');
-                span.className = 'char-display' + (index === 0 ? ' current' : '');
-                span.textContent = char;
+                span.className = 'char-display';
+                if (char === ' ') span.classList.add('space-char');
+                if (index === 0) span.classList.add('current');
+                span.textContent = char === ' ' ? ' ' : char;
                 container.appendChild(span);
             });
         }
@@ -886,7 +1001,13 @@
                 const timeInMinutes = (Date.now() - startTime) / 60000;
                 const words = totalChars / 5;
                 const wpm = Math.round(words / timeInMinutes);
-                const accuracy = Math.round(((totalChars - errors) / totalChars) * 100);
+                
+                // Calculate final accuracy
+                const targetLength = currentTargetText.length;
+                const errorPenalty = 100 / targetLength;
+                let accuracy = Math.max(0, Math.min(100, 100 - (errors * errorPenalty)));
+                accuracy = Math.round(accuracy);
+                
                 lessonStats[lesson.id] = { wpm, accuracy };
                 saveUserData();
                 document.getElementById('finalWPM').textContent = wpm;
@@ -911,17 +1032,28 @@
             currentExerciseIndex = 0;
             errors = 0;
             totalChars = 0;
+            correctChars = 0;
             startTime = null;
             loadExercise();
         }
 
         function updateStats() {
-            let wpm = 0, accuracy = 100;
+            let wpm = 0;
+            
             if (startTime && totalChars > 0) {
                 const timeInMinutes = (Date.now() - startTime) / 60000;
-                wpm = Math.round((totalChars / 5) / timeInMinutes);
-                accuracy = Math.round(((totalChars - errors) / totalChars) * 100);
+                const words = totalChars / 5;
+                wpm = Math.round(words / timeInMinutes);
             }
+            
+            // NEW ACCURACY CALCULATION: Start at 100, subtract penalty for each error
+            let accuracy = 100;
+            if (currentTargetText && currentTargetText.length > 0) {
+                const errorPenalty = 100 / currentTargetText.length;
+                accuracy = Math.max(0, Math.min(100, 100 - (errors * errorPenalty)));
+            }
+            accuracy = Math.round(accuracy);
+            
             document.getElementById('wpmStat').textContent = wpm;
             document.getElementById('accuracyStat').textContent = accuracy + '%';
             document.getElementById('errorsStat').textContent = errors;
