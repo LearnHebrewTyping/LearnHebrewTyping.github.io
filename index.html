@@ -363,7 +363,7 @@
                 </div>
 
                 <div class="key-explanation" id="keyExplanation" style="display: none;">
-                    ⬅️ התצוגה מראה לך אילו מקשים צריך ללחוץ
+                    ⬇️ התצוגה מראה לך אילו מקשים צריך ללחוץ
                 </div>
 
                 <div class="target-text" id="targetText"></div>
@@ -680,6 +680,7 @@
                 const data = JSON.parse(session);
                 currentUser = data;
                 loadUserData(data.email);
+                updateNavButtons();  // Update nav buttons after loading session
                 return true;
             }
             return false;
